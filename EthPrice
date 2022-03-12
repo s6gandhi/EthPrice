@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import "@chainlink/contracts/src/v0.8/interfaces/AggregatorV3Interface.sol";
+
+contract FundMe {
+address owner;
+constructor () public {
+owner=msg.sender;
+
+}
+mapping (address=>uint256) public addresstoint;
+
+function pay() public payable {
+   // uint256 min;
+   // min= 50*10**18;
+   // require(valueinUSD(msg.value)>min,"spend more");
+    addresstoint[msg.sender] += msg.value;}
+
+function getversion () public view returns(uint256){
+
+  AggregatorV3Interface getv= AggregatorV3Interface(0x9326BFA02ADD2366b30bacB125260Af641031331);
+  getv.version();
+
+}
+function getLatestPrice() public view returns(uint256) {
+AggregatorV3Interface getp= AggregatorV3Interface(0x9326BFA02ADD2366b30bacB125260Af641031331);
+      (
+      ,
+      int256 answer,
+      ,,)
+      =getp.latestRoundData();
+      return uint256(answer*10000000000);
+}
+function valueinUSD(uint256 ethamount) public view returns(uint256){
+    uint256 ethprice=getLatestPrice();
+    uint256 ethvalue=(ethamount*ethprice) / 1000000000000000000;
+    return ethvalue;
+}
+function withdraw() payable public{
+
+  require(msg.sender == owner);
+  payable(msg.sender).transfer(address(this).balance);
+}
+}
